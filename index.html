@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Meal Planner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --accent: #FF9800;
+            --bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --text-light: #666666;
+            --border: #e0e0e0;
+            --kid-friendly: #4CAF50;
+            --adult: #FF5722;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+        
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .nav {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+        }
+        
+        .nav-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: white;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        /* Meal Cards */
+        .meal-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s;
+        }
+        
+        .meal-card:active {
+            transform: scale(0.98);
+        }
+        
+        .meal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .meal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            flex: 1;
+        }
+        
+        .meal-type {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .meal-type.kid {
+            background: #E8F5E9;
+            color: var(--kid-friendly);
+        }
+        
+        .meal-type.adult {
+            background: #FBE9E7;
+            color: var(--adult);
+        }
+        
+        .meal-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+        
+        .meal-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .meal-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:active {
+            background: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+        
+        .btn-swap {
+            background: var(--accent);
+            color: white;
+        }
+        
+        /* Recipe Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            overflow-y: auto;
+        }
+        
+        .modal.active {
+            display: block;
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 20px auto;
+            max-width: 600px;
+            border-radius: 12px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+        }
+        
+        .modal-header h2 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .recipe-section {
+            margin-bottom: 25px;
+        }
+        
+        .recipe-section h3 {
+            font-size: 16px;
+            color: var(--primary);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .ingredients-list {
+            list-style: none;
+        }
+        
+        .ingredients-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 15px;
+        }
+        
+        .instructions-list {
+            counter-reset: step;
+            list-style: none;
+        }
+        
+        .instructions-list li {
+            counter-increment: step;
+            padding: 12px 0 12px 40px;
+            position: relative;
+            border-bottom: 1px solid var(--border);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+        
+        .instructions-list li::before {
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 12px;
+            width: 28px;
+            height: 28px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        
+        /* Shopping List */
+        .category {
+            margin-bottom: 20px;
+        }
+        
+        .category-header {
+            background: var(--primary);
+            color: white;
+            padding: 12px 15px;
+            border-radius: 8px 8px 0 0;
+            font-weight: 700;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .category-items {
+            background: white;
+            border-radius: 0 0 8px 8px;
+            box-shadow: var(--shadow);
+        }
+        
+        .shop-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .shop-item:last-child {
+            border-bottom: none;
+        }
+        
+        .shop-item.checked {
+            background: #f5f5f5;
+        }
+        
+        .shop-item.checked .item-text {
+            text-decoration: line-through;
+            color: var(--text-light);
+        }
+        
+        .checkbox {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .shop-item.checked .checkbox {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .checkbox::after {
+            content: '✓';
+            color: white;
+            font-weight: 700;
+            opacity: 0;
+        }
+        
+        .shop-item.checked .checkbox::after {
+            opacity: 1;
+        }
+        
+        .item-text {
+            font-size: 15px;
+            flex: 1;
+        }
+        
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+        
+        .progress-bar {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+        
+        .progress-text {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+        
+        .progress-track {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-card {
+            flex: 1;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🍽️ Meal Planner</h1>
+        <p>Plan your week, shop smarter</p>
+    </div>
+    
+    <div class="nav">
+        <button class="nav-btn active" onclick="showSection('meals')">Meals</button>
+        <button class="nav-btn" onclick="showSection('shopping')">Shopping</button>
+    </div>
+    
+    <div class="container">
+        <!-- Meals Section -->
+        <div id="meals-section" class="section active">
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="kid-count">0</div>
+                    <div class="stat-label">Kid Meals</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="adult-count">0</div>
+                    <div class="stat-label">Adult Meals</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-time">0</div>
+                    <div class="stat-label">Min Avg</div>
+                </div>
+            </div>
+            <div id="meals-list"></div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="generateNewWeek()">Generate New Week</button>
+        </div>
+        
+        <!-- Shopping Section -->
+        <div id="shopping-section" class="section">
+            <button class="generate-btn" onclick="generateShoppingList()">🛒 Generate Shopping List</button>
+            <div id="progress-container" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-text"><span id="checked-count">0</span> of <span id="total-count">0</span> items</div>
+                    <div class="progress-track">
+                        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="shopping-list"></div>
+        </div>
+    </div>
+    
+    <!-- Recipe Modal -->
+    <div id="recipe-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Recipe</h2>
+                <p id="modal-meta"></p>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="recipe-section">
+                    <h3>📝 Ingredients</h3>
+                    <ul class="ingredients-list" id="modal-ingredients"></ul>
+                </div>
+                <div class="recipe-section">
+                    <h3>👨‍🍳 Instructions</h3>
+                    <ol class="instructions-list" id="modal-instructions"></ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Meal Database
+        const mealDatabase = [
+            {
+                id: 1,
+                name: "One-Pan Honey Garlic Chicken",
+                protein: "Chicken",
+                time: 30,
+                type: "kid",
+                rating: 5,
+                ingredients: [
+                    "4 chicken thighs (bone-in, skin-on)",
+                    "2 cups broccoli florets",
+                    "1 cup carrots, sliced",
+                    "1 cup snap peas",
+                    "2 cups jasmine rice",
+                    "3 tbsp honey",
+                    "4 cloves garlic, minced",
+                    "3 tbsp soy sauce",
+                    "1 tbsp sesame oil",
+                    "2 tbsp vegetable oil",
+                    "Salt and pepper to taste"
+                ],
+                instructions: [
+                    "Season chicken thighs generously with salt and pepper on both sides.",
+                    "Heat vegetable oil in a large deep skillet over medium-high heat until shimmering.",
+                    "Sear chicken thighs skin-side down for 5 minutes until golden brown. Flip and sear other side for 5 minutes.",
+                    "Remove chicken and set aside. In same pan, add minced garlic and sauté for 1 minute until fragrant.",
+                    "Stir in honey, soy sauce, and 2 tablespoons water, scraping up browned bits from pan.",
+                    "Return chicken to pan. Add broccoli, carrots, and snap peas around the chicken.",
+                    "Cover with lid and reduce heat to medium-low. Simmer for 10-12 minutes until vegetables are tender and chicken reaches 165°F.",
+                    "Serve over cooked rice with pan sauce drizzled on top."
+                ]
+            },
+            {
+                id: 2,
+                name: "Cheesy Chicken Broccoli Rice",
+                protein: "Chicken",
+                time: 30,
+                type: "kid",
+                rating: 5,
+                ingredients: [
+                    "2 large chicken breasts, diced",
+                    "2 cups broccoli florets",
+                    "1 medium onion, diced",
+                    "1.5 cups jasmine rice",
+                    "2 cups chicken stock",
+                    "1 cup shredded cheddar cheese",
+                    "4 oz cream cheese",
+                    "2 cloves garlic, minced",
+                    "2 tbsp butter",
+                    "1 tsp salt",
+                    "1/2 tsp black pepper",
+                    "1 tsp paprika"
+                ],
+                instructions: [
+                    "Cook rice in chicken stock according to package directions (typically 15 minutes), then set aside.",
+                    "Heat butter in large skillet over medium heat. Add diced onion and cook 3-4 minutes until softened.",
+                    "Add diced chicken, season with salt, pepper, and paprika. Cook chicken 6-7 minutes until golden and cooked through.",
+                    "Add broccoli and 2 tablespoons water, cover, and steam 5 minutes until tender.",
+                    "Reduce heat to low. Stir in cooked rice, cheddar cheese, and cream cheese.",
+                    "Mix until cheese is fully melted and everything is creamy and combined.",
+                    "Taste and adjust seasoning. Serve immediately while hot."
+                ]
+            },
+            {
+                id: 3,
+                name: "Beef Meatballs with Hidden Veg",
+                protein: "Beef",
+                time: 40,
+                type: "kid",
+                rating: 5,
+                ingredients: [
+                    "1 lb ground beef (80/20)",
+                    "1 medium carrot, grated",
+                    "1 small zucchini, grated",
+                    "1/2 onion, finely diced",
+                    "1 lb spaghetti",
+                    "24 oz jar marinara sauce",
+                    "2 tbsp tomato paste",
+                    "1 egg",
+                    "1/4 cup breadcrumbs",
+                    "2 cloves garlic, minced",
+                    "1 tsp Italian seasoning",
+                    "1/2 tsp salt",
+                    "1/4 tsp black pepper",
+                    "2 tbsp olive oil",
+                    "Parmesan cheese for serving"
+                ],
+                instructions: [
+                    "Grate carrot and zucchini, finely dice onion.",
+                    "In large bowl, mix ground beef, grated vegetables, egg, breadcrumbs, minced garlic, Italian seasoning, salt, and pepper.",
+                    "Use hands to combine thoroughly. Form into 20 small meatballs (about 1.5 inches).",
+                    "Heat olive oil in large skillet over medium-high heat. Brown meatballs in batches, turning frequently, about 5-6 minutes per batch.",
+                    "Return all meatballs to pan. Add marinara sauce and tomato paste. Stir gently to coat.",
+                    "Reduce heat to low, cover, and simmer 20-25 minutes until meatballs are cooked through.",
+                    "Meanwhile, cook spaghetti in salted boiling water according to package. Drain pasta.",
+                    "Serve meatballs and sauce over spaghetti with grated Parmesan."
+                ]
+            },
+            {
+                id: 4,
+                name: "Chicken Fajita Bowls",
+                protein: "Chicken",
+                time: 30,
+                type: "kid",
+                rating: 5,
+                ingredients: [
+                    "2 large chicken breasts, sliced into strips",
+                    "2 bell peppers, sliced",
+                    "1 large onion, sliced",
+                    "1 cup corn kernels",
+                    "1 can black beans, drained",
+                    "2 cups cooked rice",
+                    "1 cup shredded cheese",
+                    "1/2 cup salsa",
+                    "1 lime, cut into wedges",
+                    "2 tbsp fajita seasoning",
+                    "2 tbsp vegetable oil",
+                    "Salt to taste",
+                    "Optional: sour cream, guacamole"
+                ],
+                instructions: [
+                    "Slice chicken into thin strips. Mix fajita seasoning. Season chicken strips with half the seasoning and salt.",
+                    "Heat 1 tablespoon oil in large skillet over medium-high heat. Cook chicken 6-7 minutes until browned and cooked through.",
+                    "Remove chicken and set aside. In same pan, heat remaining oil.",
+                    "Add sliced peppers and onions. Cook 5-6 minutes until softened and slightly charred.",
+                    "Add corn and black beans. Sprinkle remaining seasoning and stir.",
+                    "Return chicken to pan and toss everything together. Cook 1-2 minutes until heated through.",
+                    "To serve: Place rice in bowls, top with chicken and vegetable mixture, sprinkle with cheese.",
+                    "Add salsa, lime wedges, and optional toppings."
+                ]
+            },
+            {
+                id: 5,
+                name: "Mini Chicken Meatballs and Pasta",
+                protein: "Chicken",
+                time: 25,
+                type: "kid",
+                rating: 5,
+                ingredients: [
+                    "1 lb ground chicken",
+                    "2 cups fresh spinach, finely chopped",
+                    "1 medium carrot, grated",
+                    "8 oz mini pasta",
+                    "24 oz jar marinara sauce",
+                    "1 egg",
+                    "1/4 cup breadcrumbs",
+                    "1/4 cup Parmesan cheese, grated",
+                    "1 clove garlic, minced",
+                    "1/2 tsp salt",
+                    "1/4 tsp pepper",
+                    "2 tbsp olive oil"
+                ],
+                instructions: [
+                    "Finely chop spinach (should be almost minced). Grate carrot.",
+                    "In large bowl, combine ground chicken, spinach, carrot, egg, breadcrumbs, Parmesan, garlic, salt, and pepper.",
+                    "Mix thoroughly with hands. Form into tiny meatballs (about 1 inch diameter) - makes approximately 24.",
+                    "Heat olive oil in large skillet over medium heat. Brown meatballs in batches, turning occasionally, about 6 minutes total.",
+                    "Add marinara sauce to pan with meatballs. Stir gently. Simmer covered on low heat for 10 minutes until meatballs are cooked through.",
+                    "Meanwhile, cook mini pasta in salted boiling water according to package. Drain pasta.",
+                    "Serve meatballs and sauce over pasta with extra Parmesan."
+                ]
+            },
+            {
+                id: 6,
+                name: "Peri Peri Chicken",
+                protein: "Chicken",
+                time: 40,
+                type: "adult",
+                rating: 2,
+                ingredients: [
+                    "8 chicken thighs or drumsticks (bone-in, skin-on)",
+                    "2 red bell peppers, sliced",
+                    "2 onions, sliced",
+                    "4 cloves garlic, minced",
+                    "2 tbsp paprika",
+                    "1-2 tsp cayenne pepper",
+                    "1 tsp dried oregano",
+                    "1 tsp salt",
+                    "1/2 tsp black pepper",
+                    "3 tbsp lemon juice, fresh",
+                    "3 tbsp olive oil",
+                    "2 cups jasmine rice, cooked",
+                    "1 cup plain yogurt, for serving"
+                ],
+                instructions: [
+                    "Mix paprika, cayenne, oregano, salt, pepper, minced garlic, lemon juice, and olive oil in bowl to make peri peri marinade.",
+                    "Place chicken in large ziplock bag or shallow dish. Pour marinade over chicken. Massage to coat evenly.",
+                    "Marinate in refrigerator at least 30 minutes (or overnight for best flavor).",
+                    "Preheat oven to 425°F (220°C). Arrange chicken on baking sheet.",
+                    "Scatter sliced peppers and onions around chicken.",
+                    "Roast for 30-35 minutes until chicken skin is crispy and internal temperature reaches 165°F.",
+                    "Vegetables should be softened and slightly charred. Let chicken rest 5 minutes.",
+                    "Serve over rice with yogurt on the side to cool the heat."
+                ]
+            },
+            {
+                id: 7,
+                name: "Korean Beef Bulgogi",
+                protein: "Beef",
+                time: 20,
+                type: "adult",
+                rating: 2,
+                ingredients: [
+                    "1 lb beef sirloin, thinly sliced",
+                    "4 scallions, sliced",
+                    "4 cloves garlic, minced",
+                    "1 inch ginger, grated",
+                    "1 Asian pear, grated",
+                    "1/4 cup soy sauce",
+                    "2 tbsp sesame oil",
+                    "2 tbsp brown sugar",
+                    "1 tbsp rice vinegar",
+                    "2 tsp sesame seeds",
+                    "2 cups jasmine rice, cooked",
+                    "Vegetable oil for cooking"
+                ],
+                instructions: [
+                    "Place beef in freezer for 20 minutes to firm up (makes slicing easier).",
+                    "Slice beef as thinly as possible against the grain.",
+                    "In bowl, whisk together soy sauce, sesame oil, brown sugar, rice vinegar, minced garlic, grated ginger, and grated pear.",
+                    "Add sliced beef to marinade. Toss to coat thoroughly.",
+                    "Marinate 15-30 minutes at room temperature or up to 2 hours in fridge.",
+                    "Heat large skillet or wok over very high heat until smoking. Add 1 tablespoon oil.",
+                    "Working in batches (don't overcrowd), stir-fry beef 1-2 minutes per side until just browned. Each batch takes about 2 minutes total.",
+                    "Transfer to plate. Continue with remaining beef.",
+                    "Garnish with sliced scallions and sesame seeds. Serve immediately over hot rice."
+                ]
+            },
+            {
+                id: 8,
+                name: "Lemon Herb Chicken",
+                protein: "Chicken",
+                time: 30,
+                type: "adult",
+                rating: 3,
+                ingredients: [
+                    "4 chicken breasts (bone-in or boneless)",
+                    "1.5 lbs baby potatoes, halved",
+                    "1 bunch asparagus",
+                    "1 cup cherry tomatoes",
+                    "1/4 cup olive oil",
+                    "2 lemons, zested and juiced",
+                    "4 cloves garlic, minced",
+                    "2 tbsp fresh herbs (rosemary, thyme, or parsley)",
+                    "1 tsp salt",
+                    "1/2 tsp black pepper"
+                ],
+                instructions: [
+                    "In small bowl, whisk together olive oil, lemon juice, lemon zest, minced garlic, chopped herbs, salt, and pepper.",
+                    "Place chicken in shallow dish. Pour half the marinade over chicken. Turn to coat. Marinate 15 minutes (or up to 2 hours).",
+                    "Preheat oven to 400°F (200°C).",
+                    "Toss halved potatoes with 1 tablespoon olive oil, salt, and pepper. Spread on baking sheet. Roast potatoes for 20 minutes.",
+                    "Remove from oven. Push potatoes to one side. Add marinated chicken to baking sheet.",
+                    "Return to oven for 15 minutes.",
+                    "Add asparagus and cherry tomatoes (drizzled with remaining marinade).",
+                    "Roast additional 10-12 minutes until chicken reaches 165°F and vegetables are tender. Serve with lemon wedges."
+                ]
+            },
+            {
+                id: 9,
+                name: "Curried Chicken Thighs",
+                protein: "Chicken",
+                time: 35,
+                type: "adult",
+                rating: 3,
+                ingredients: [
+                    "6 chicken thighs (bone-in, skin-on)",
+                    "1 large onion, diced",
+                    "2 tomatoes, diced",
+                    "3 cups fresh spinach",
+                    "4 cloves garlic, minced",
+                    "1 inch ginger, grated",
+                    "2 tbsp garam masala",
+                    "1 tsp turmeric",
+                    "1 tsp cumin",
+                    "1/2 tsp cayenne (optional)",
+                    "1 can (14 oz) coconut milk",
+                    "2 tbsp vegetable oil",
+                    "1 tsp salt",
+                    "2 cups jasmine rice, cooked",
+                    "Fresh cilantro for garnish"
+                ],
+                instructions: [
+                    "Pat chicken thighs dry. Season with salt.",
+                    "Heat oil in large deep skillet or Dutch oven over medium-high heat.",
+                    "Sear chicken skin-side down 5 minutes until golden. Flip and sear 3 minutes. Remove chicken and set aside.",
+                    "In same pot, sauté onion 3 minutes. Add garlic, ginger, garam masala, turmeric, and cumin.",
+                    "Cook 1 minute until fragrant. Add diced tomatoes and coconut milk. Stir and bring to simmer.",
+                    "Return chicken to pot, skin-side up. Cover and simmer on low 15 minutes.",
+                    "Remove lid, stir in spinach until wilted. Simmer uncovered 5 more minutes until sauce thickens slightly.",
+                    "Serve over rice with cilantro."
+                ]
+            },
+            {
+                id: 10,
+                name: "Beef and Broccoli Stir-Fry",
+                protein: "Beef",
+                time: 20,
+                type: "adult",
+                rating: 3,
+                ingredients: [
+                    "1 lb beef sirloin, thinly sliced",
+                    "4 cups broccoli florets",
+                    "4 cloves garlic, minced",
+                    "1 inch ginger, grated",
+                    "3 tbsp soy sauce",
+                    "2 tbsp oyster sauce",
+                    "1 tbsp brown sugar",
+                    "1 tsp sesame oil",
+                    "1 tbsp cornstarch",
+                    "3 tbsp water",
+                    "2 tbsp vegetable oil",
+                    "2 cups jasmine rice, cooked"
+                ],
+                instructions: [
+                    "Slice beef as thinly as possible against the grain.",
+                    "In small bowl, mix soy sauce, oyster sauce, brown sugar, sesame oil, and cornstarch slurry (cornstarch mixed with water). Set aside.",
+                    "Blanch broccoli in boiling water 2 minutes until bright green. Drain and set aside.",
+                    "Heat 1 tablespoon oil in wok or large skillet over very high heat until smoking.",
+                    "Stir-fry beef in batches 1-2 minutes until just browned. Remove and set aside.",
+                    "In same pan, heat remaining oil. Add garlic and ginger, stir-fry 30 seconds.",
+                    "Add broccoli, toss 1 minute. Return beef to pan.",
+                    "Pour in sauce mixture. Toss everything together 1-2 minutes until sauce thickens and coats everything.",
+                    "Serve immediately over rice."
+                ]
+            },
+            {
+                id: 11,
+                name: "Lamb Chops with Mint Pesto",
+                protein: "Lamb",
+                time: 30,
+                type: "adult",
+                rating: 2,
+                ingredients: [
+                    "8 lamb chops (about 1 inch thick)",
+                    "2 zucchinis, sliced",
+                    "1.5 lbs baby potatoes, halved",
+                    "2 cups fresh mint leaves",
+                    "1 cup fresh parsley",
+                    "1/4 cup pine nuts or walnuts",
+                    "2 cloves garlic",
+                    "1/3 cup olive oil",
+                    "1/4 cup Parmesan cheese, grated",
+                    "2 tbsp lemon juice",
+                    "1 tsp salt",
+                    "1/2 tsp black pepper"
+                ],
+                instructions: [
+                    "Season lamb chops generously with salt and pepper. Let sit at room temperature 20 minutes.",
+                    "Make pesto: In food processor, combine mint, parsley, pine nuts, garlic, and Parmesan.",
+                    "Pulse until finely chopped. With processor running, slowly drizzle in olive oil and lemon juice until smooth. Set aside.",
+                    "Preheat oven to 400°F (200°C). Heat oven-safe skillet over high heat.",
+                    "Sear lamb chops 3-4 minutes per side for medium-rare. Remove from heat. Let rest 5 minutes.",
+                    "Meanwhile, toss potatoes with olive oil, salt, pepper. Roast at 400°F for 25-30 minutes until golden.",
+                    "Grill or sauté zucchini slices 3-4 minutes per side.",
+                    "Serve lamb chops with mint pesto, roasted potatoes, and grilled zucchini."
+                ]
+            },
+            {
+                id: 12,
+                name: "Miso Glazed Salmon",
+                protein: "Salmon",
+                time: 25,
+                type: "adult",
+                rating: 2,
+                ingredients: [
+                    "4 salmon fillets (6 oz each, skin-on)",
+                    "2 tbsp white miso paste",
+                    "2 tbsp soy sauce",
+                    "1 tbsp mirin",
+                    "1 tbsp brown sugar",
+                    "1 tsp sesame oil",
+                    "1 lb bok choy, halved",
+                    "2 cloves garlic, minced",
+                    "1 inch ginger, grated",
+                    "2 scallions, sliced",
+                    "2 cups jasmine rice, cooked"
+                ],
+                instructions: [
+                    "In small bowl, whisk together miso paste, soy sauce, mirin, brown sugar, and sesame oil.",
+                    "Place salmon in shallow dish. Spread miso glaze evenly over salmon fillets. Marinate 10-15 minutes.",
+                    "Preheat broiler to high. Place salmon on foil-lined baking sheet.",
+                    "Broil 8-10 minutes until top is caramelized and salmon flakes easily.",
+                    "Meanwhile, heat 1 tablespoon oil in large skillet. Add minced garlic and ginger, sauté 30 seconds.",
+                    "Add bok choy cut-side down. Cook 3-4 minutes until slightly charred.",
+                    "Flip, add 2 tablespoons water, cover, and steam 2-3 minutes until tender.",
+                    "Serve salmon over rice with bok choy on side. Garnish with scallions."
+                ]
+            }
+        ];
+
+        // State management
+        let currentWeek = [];
+        let shoppingList = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWeek();
+            if (currentWeek.length === 0) {
+                generateNewWeek();
+            } else {
+                renderMeals();
+            }
+            loadShoppingList();
+        });
+
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(section + '-section').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function generateNewWeek() {
+            // Shuffle and pick 6 meals (2-3 kid-friendly, rest adult)
+            const kidMeals = mealDatabase.filter(m => m.type === 'kid');
+            const adultMeals = mealDatabase.filter(m => m.type === 'adult');
+            
+            // Pick 2-3 kid meals randomly
+            const numKidMeals = Math.floor(Math.random() * 2) + 2; // 2 or 3
+            const shuffledKid = [...kidMeals].sort(() => 0.5 - Math.random());
+            const selectedKid = shuffledKid.slice(0, numKidMeals);
+            
+            // Pick remaining from adult meals
+            const numAdultMeals = 6 - numKidMeals;
+            const shuffledAdult = [...adultMeals].sort(() => 0.5 - Math.random());
+            const selectedAdult = shuffledAdult.slice(0, numAdultMeals);
+            
+            // Combine and shuffle
+            currentWeek = [...selectedKid, ...selectedAdult].sort(() => 0.5 - Math.random());
+            
+            saveWeek();
+            renderMeals();
+            clearShoppingList();
+        }
+
+        function renderMeals() {
+            const container = document.getElementById('meals-list');
+            container.innerHTML = '';
+            
+            let kidCount = 0;
+            let adultCount = 0;
+            let totalTime = 0;
+            
+            currentWeek.forEach((meal, index) => {
+                if (meal.type === 'kid') kidCount++;
+                else adultCount++;
+                totalTime += meal.time;
+                
+                const card = document.createElement('div');
+                card.className = 'meal-card';
+                card.innerHTML = `
+                    <div class="meal-header">
+                        <div class="meal-title">${meal.name}</div>
+                        <span class="meal-type ${meal.type}">${meal.type === 'kid' ? '👶 Kid' : '🍷 Adult'}</span>
+                    </div>
+                    <div class="meal-meta">
+                        <span>⏱️ ${meal.time} min</span>
+                        <span>🥩 ${meal.protein}</span>
+                        <span>⭐ ${meal.rating}/5</span>
+                    </div>
+                    <div class="meal-actions">
+                        <button class="btn btn-primary" onclick="viewRecipe(${index})">View Recipe</button>
+                        <button class="btn btn-swap" onclick="swapMeal(${index})">Swap</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            
+            // Update stats
+            document.getElementById('kid-count').textContent = kidCount;
+            document.getElementById('adult-count').textContent = adultCount;
+            document.getElementById('total-time').textContent = Math.round(totalTime / 6);
+        }
+
+        function viewRecipe(index) {
+            const meal = currentWeek[index];
+            document.getElementById('modal-title').textContent = meal.name;
+            document.getElementById('modal-meta').textContent = `${meal.time} min | ${meal.protein} | ${meal.type === 'kid' ? 'Kid-friendly' : 'Adult-focused'} ${meal.rating}/5`;
+            
+            const ingredientsList = document.getElementById('modal-ingredients');
+            ingredientsList.innerHTML = meal.ingredients.map(i => `<li>${i}</li>`).join('');
+            
+            const instructionsList = document.getElementById('modal-instructions');
+            instructionsList.innerHTML = meal.instructions.map(i => `<li>${i}</li>`).join('');
+            
+            document.getElementById('recipe-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('recipe-modal').classList.remove('active');
+        }
+
+        function swapMeal(index) {
+            const currentMeal = currentWeek[index];
+            const isKid = currentMeal.type === 'kid';
+            
+            // Get available meals of same type, excluding current ones
+            const available = mealDatabase.filter(m => 
+                m.type === currentMeal.type && 
+                !currentWeek.some(cm => cm.id === m.id)
+            );
+            
+            if (available.length > 0) {
+                const randomMeal = available[Math.floor(Math.random() * available.length)];
+                currentWeek[index] = randomMeal;
+                saveWeek();
+                renderMeals();
+                clearShoppingList();
+            } else {
+                alert('No more ' + (isKid ? 'kid-friendly' : 'adult') + ' meals available to swap!');
+            }
+        }
+
+        function generateShoppingList() {
+            const categories = {
+                'Protein': [],
+                'Produce': [],
+                'Dairy': [],
+                'Pantry': [],
+                'Spices': []
+            };
+            
+            const proteinKeywords = ['chicken', 'beef', 'salmon', 'lamb', 'shrimp', 'pork', 'turkey', 'egg'];
+            const dairyKeywords = ['cheese', 'milk', 'butter', 'cream', 'yogurt'];
+            const pantryKeywords = ['rice', 'pasta', 'sauce', 'oil', 'vinegar', 'sugar', 'honey', 'stock', 'canned', 'beans', 'corn', 'breadcrumbs', 'paste', 'nuts', 'seeds'];
+            const spiceKeywords = ['salt', 'pepper', 'paprika', 'cumin', 'turmeric', 'oregano', 'seasoning', 'spice', 'masala', 'sesame seeds'];
+            
+            currentWeek.forEach(meal => {
+                meal.ingredients.forEach(ingredient => {
+                    const lower = ingredient.toLowerCase();
+                    let category = 'Produce'; // Default
+                    
+                    if (proteinKeywords.some(k => lower.includes(k))) category = 'Protein';
+                    else if (dairyKeywords.some(k => lower.includes(k))) category = 'Dairy';
+                    else if (spiceKeywords.some(k => lower.includes(k))) category = 'Spices';
+                    else if (pantryKeywords.some(k => lower.includes(k))) category = 'Pantry';
+                    
+                    // Add quantity if similar item exists
+                    const existing = categories[category].find(i => i.name.toLowerCase() === ingredient.toLowerCase());
+                    if (!existing) {
+                        categories[category].push({
+                            name: ingredient,
+                            checked: false
+                        });
+                    }
+                });
+            });
+            
+            shoppingList = categories;
+            saveShoppingList();
+            renderShoppingList();
+        }
+
+        function renderShoppingList() {
+            const container = document.getElementById('shopping-list');
+            container.innerHTML = '';
+            
+            let totalItems = 0;
+            let checkedItems = 0;
+            
+            const categoryIcons = {
+                'Protein': '🥩',
+                'Produce': '🥬',
+                'Dairy': '🥛',
+                'Pantry': '🥫',
+                'Spices': '🌶️'
+            };
+            
+            const categoryOrder = ['Protein', 'Produce', 'Dairy', 'Pantry', 'Spices'];
+            
+            categoryOrder.forEach(category => {
+                const items = shoppingList[category] || [];
+                if (items.length === 0) return;
+                
+                totalItems += items.length;
+                checkedItems += items.filter(i => i.checked).length;
+                
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category';
+                categoryDiv.innerHTML = `
+                    <div class="category-header">
+                        ${categoryIcons[category]} ${category}
+                        <span>${items.filter(i => i.checked).length}/${items.length}</span>
+                    </div>
+                    <div class="category-items">
+                        ${items.map((item, idx) => `
+                            <div class="shop-item ${item.checked ? 'checked' : ''}" onclick="toggleItem('${category}', ${idx})">
+                                <div class="checkbox"></div>
+                                <span class="item-text">${item.name}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(categoryDiv);
+            });
+            
+            // Update progress
+            if (totalItems > 0) {
+                document.getElementById('progress-container').style.display = 'block';
+                document.getElementById('checked-count').textContent = checkedItems;
+                document.getElementById('total-count').textContent = totalItems;
+                document.getElementById('progress-fill').style.width = (checkedItems / totalItems * 100) + '%';
+            } else {
+                document.getElementById('progress-container').style.display = 'none';
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🛒</div>
+                        <h3>No shopping list yet</h3>
+                        <p>Click "Generate Shopping List" above to create your shopping list from this week's meals.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function toggleItem(category, index) {
+            shoppingList[category][index].checked = !shoppingList[category][index].checked;
+            saveShoppingList();
+            renderShoppingList();
+        }
+
+        function clearShoppingList() {
+            shoppingList = { 'Protein': [], 'Produce': [], 'Dairy': [], 'Pantry': [], 'Spices': [] };
+            saveShoppingList();
+            const container = document.getElementById('shopping-list');
+            if (container) {
+                container.innerHTML = '';
+                document.getElementById('progress-container').style.display = 'none';
+            }
+        }
+
+        // LocalStorage functions
+        function saveWeek() {
+            localStorage.setItem('mealPlanWeek', JSON.stringify(currentWeek));
+        }
+
+        function loadWeek() {
+            const saved = localStorage.getItem('mealPlanWeek');
+            if (saved) {
+                currentWeek = JSON.parse(saved);
+            }
+        }
+
+        function saveShoppingList() {
+            localStorage.setItem('mealPlanShopping', JSON.stringify(shoppingList));
+        }
+
+        function loadShoppingList() {
+            const saved = localStorage.getItem('mealPlanShopping');
+            if (saved) {
+                shoppingList = JSON.parse(saved);
+                if (Object.values(shoppingList).some(arr => arr.length > 0)) {
+                    renderShoppingList();
+                }
+            }
+        }
+
+        // Close modal on outside click
+        document.getElementById('recipe-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
