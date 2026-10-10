@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ID Photo">
+<meta name="theme-color" content="#0b0b0d">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" href="icons/icon-512.png">
+<title>ID Photo</title>
+<style>
+:root {
+  --bg: #0b0b0d;
+  --panel: rgba(28, 28, 32, 0.86);
+  --panel-solid: #1c1c20;
+  --line: rgba(255, 255, 255, 0.08);
+  --text: #f5f5f7;
+  --muted: #9a9aa2;
+  --accent: #0a84ff;
+  --ok: #30d158;
+  --warn: #ffd60a;
+  --bad: #ff453a;
+  --radius: 14px;
+  --sa-top: env(safe-area-inset-top, 0px);
+  --sa-bottom: env(safe-area-inset-bottom, 0px);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--bg); color: var(--text); overflow: hidden;
+  font: 15px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased; -webkit-user-select: none; user-select: none; overscroll-behavior: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+input, select { font: inherit; color: inherit; }
+.hidden { display: none !important; }
+
+.screen { position: fixed; inset: 0; display: flex; flex-direction: column; }
+
+/* ---------- Home ---------- */
+#home { padding: calc(var(--sa-top) + 28px) 20px calc(var(--sa-bottom) + 24px); overflow-y: auto; gap: 22px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(145deg, #2c2c34, #15151a);
+  display: grid; place-items: center; border: 1px solid var(--line); }
+.brand h1 { font-size: 28px; letter-spacing: -0.02em; font-weight: 700; }
+.brand p { color: var(--muted); font-size: 13px; }
+.card { background: var(--panel-solid); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+.spec-card { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; }
+.spec-card .flag { font-size: 34px; line-height: 1; }
+.spec-card .meta { flex: 1; min-width: 0; }
+.spec-card .title { font-weight: 600; font-size: 16px; }
+.spec-card .sub { color: var(--muted); font-size: 13px; }
+.chev { color: var(--muted); font-size: 22px; }
+.label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.cta { display: grid; gap: 12px; }
+.btn { display: flex; align-items: center; justify-content: center; gap: 10px; height: 54px; border-radius: 14px;
+  font-weight: 600; font-size: 16px; background: #2a2a30; border: 1px solid var(--line); transition: transform .12s, opacity .12s; }
+.btn:active { transform: scale(0.98); opacity: .85; }
+.btn.primary { background: var(--accent); border-color: transparent; color: #fff; }
+.btn.small { height: 40px; font-size: 14px; border-radius: 11px; padding: 0 14px; }
+.tips { color: var(--muted); font-size: 13px; display: grid; gap: 6px; }
+.tips li { margin-left: 18px; }
+.footnote { color: #6c6c74; font-size: 11px; }
+
+/* ---------- Editor ---------- */
+#editor { background: var(--bg); }
+.topbar { position: relative; z-index: 3; display: flex; align-items: center; gap: 8px;
+  padding: calc(var(--sa-top) + 8px) 12px 8px; }
+.icon-btn { width: 40px; height: 40px; border-radius: 20px; display: grid; place-items: center; background: rgba(255,255,255,.06); }
+.icon-btn:active { background: rgba(255,255,255,.14); }
+.icon-btn.on { background: rgba(10,132,255,.25); color: #64b0ff; }
+.topbar .spec-pill { flex: 1; min-width: 0; height: 40px; border-radius: 20px; background: rgba(255,255,255,.06);
+  display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600; font-size: 14px; padding: 0 12px; }
+.spec-pill span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chips { display: flex; gap: 6px; padding: 0 12px 6px; overflow-x: auto; scrollbar-width: none; min-height: 32px; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: rgba(255,255,255,.07);
+  display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.chip i { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+.chip.ok i { background: var(--ok); } .chip.warn i { background: var(--warn); } .chip.bad i { background: var(--bad); }
+#stage { flex: 1; position: relative; touch-action: none; min-height: 0; }
+#stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.toast { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); background: rgba(20,20,24,.92);
+  border: 1px solid var(--line); padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 500;
+  pointer-events: none; opacity: 0; transition: opacity .2s; white-space: nowrap; z-index: 2; }
+.toast.show { opacity: 1; }
+.compare-hint { position: absolute; right: 12px; bottom: 12px; z-index: 2; }
+
+.dock { position: relative; z-index: 3; background: var(--panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--line); padding: 12px 14px calc(var(--sa-bottom) + 10px); }
+.panel { display: grid; gap: 6px; height: 212px; align-content: start; overflow-y: auto; }
+.row { display: flex; gap: 8px; align-items: center; }
+.row > .btn { flex: 1; }
+.slider { display: grid; grid-template-columns: 86px 1fr 44px; align-items: center; gap: 10px; font-size: 13px; }
+.slider label { color: var(--muted); }
+.slider output { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); font-size: 12px; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; }
+input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: rgba(255,255,255,.18); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #fff;
+  margin-top: -9px; box-shadow: 0 1px 4px rgba(0,0,0,.5); }
+input[type=range]::-moz-range-track { height: 4px; border-radius: 2px; background: rgba(255,255,255,.18); }
+input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 0; }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); background: rgba(255,255,255,.07); border-radius: 11px; padding: 3px; margin-top: 12px; }
+.seg button { height: 34px; border-radius: 9px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.seg button.active { background: rgba(255,255,255,.16); color: var(--text); }
+.hint { color: var(--muted); font-size: 12px; }
+.export-preview { display: flex; gap: 12px; align-items: center; }
+.export-preview img { height: 76px; border-radius: 4px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.4); }
+.export-preview .hint { flex: 1; }
+
+/* ---------- Sheets / modals ---------- */
+.sheet-wrap { position: fixed; inset: 0; z-index: 10; background: rgba(0,0,0,.5); display: flex; align-items: flex-end;
+  opacity: 0; pointer-events: none; transition: opacity .2s; }
+.sheet-wrap.open { opacity: 1; pointer-events: auto; }
+.sheet { width: 100%; max-height: 86%; overflow-y: auto; background: var(--panel-solid); border-radius: 18px 18px 0 0;
+  padding: 10px 16px calc(var(--sa-bottom) + 20px); transform: translateY(30px); transition: transform .25s;
+  -webkit-user-select: text; user-select: text; }
+.sheet-wrap.open .sheet { transform: none; }
+.grabber { width: 38px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.2); margin: 0 auto 12px; }
+.sheet h2 { font-size: 20px; margin-bottom: 12px; }
+.spec-list { display: grid; gap: 8px; }
+.spec-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,.04);
+  border: 1px solid transparent; text-align: left; width: 100%; }
+.spec-item.sel { border-color: var(--accent); background: rgba(10,132,255,.12); }
+.spec-item .flag { font-size: 26px; }
+.spec-item .meta { flex: 1; min-width: 0; }
+.spec-item .title { font-weight: 600; font-size: 15px; }
+.spec-item .sub { color: var(--muted); font-size: 12px; }
+.badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 5px; letter-spacing: .03em; }
+.badge.official { background: rgba(48,209,88,.15); color: var(--ok); }
+.badge.approx { background: rgba(255,214,10,.15); color: var(--warn); }
+.badge.custom { background: rgba(10,132,255,.18); color: #64b0ff; }
+.detail { margin-top: 14px; display: grid; gap: 8px; font-size: 13px; color: #c9c9cf; }
+.detail ul { margin-left: 18px; display: grid; gap: 4px; }
+.detail a { color: #64b0ff; word-break: break-all; }
+.form { display: grid; gap: 10px; margin-top: 12px; }
+.form .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+.form input { height: 42px; border-radius: 10px; border: 1px solid var(--line); background: rgba(255,255,255,.05); padding: 0 12px; font-size: 16px; }
+.form input[type=color] { padding: 4px; }
+
+/* ---------- Camera ---------- */
+#camera { background: #000; }
+#camera video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+#camera video.mirror { transform: scaleX(-1); }
+#camOverlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.cam-top { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; padding: calc(var(--sa-top) + 10px) 14px; z-index: 2; }
+.cam-bottom { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-around; align-items: center;
+  padding: 20px 20px calc(var(--sa-bottom) + 26px); z-index: 2; background: linear-gradient(transparent, rgba(0,0,0,.6)); }
+.shutter { width: 74px; height: 74px; border-radius: 50%; border: 4px solid #fff; display: grid; place-items: center; }
+.shutter::after { content: ""; width: 58px; height: 58px; border-radius: 50%; background: #fff; transition: transform .1s; }
+.shutter:active::after { transform: scale(.9); }
+.countdown { position: absolute; inset: 0; display: grid; place-items: center; font-size: 120px; font-weight: 200; z-index: 3; pointer-events: none;
+  text-shadow: 0 4px 30px rgba(0,0,0,.6); }
+.cam-hint { position: absolute; left: 0; right: 0; top: calc(var(--sa-top) + 64px); text-align: center; font-size: 13px; color: #ddd; z-index: 2;
+  text-shadow: 0 1px 4px rgba(0,0,0,.8); }
+.flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 4; transition: opacity .25s; }
+
+.busy { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; background: rgba(0,0,0,.45); }
+.spinner { width: 34px; height: 34px; border-radius: 50%; border: 3px solid rgba(255,255,255,.2); border-top-color: #fff; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- Home -->
+<section id="home" class="screen">
+  <div class="brand">
+    <div class="brand-mark">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6"><rect x="4" y="2.5" width="16" height="19" rx="2.5"/><circle cx="12" cy="10" r="3.4"/><path d="M6.8 18.5c1-2.6 3-3.8 5.2-3.8s4.2 1.2 5.2 3.8"/></svg>
+    </div>
+    <div><h1>ID Photo</h1><p>Biometric passport &amp; visa photos</p></div>
+  </div>
+
+  <div>
+    <div class="label">Format</div>
+    <button class="card spec-card" id="homeSpec"></button>
+  </div>
+
+  <div class="cta">
+    <button class="btn primary" id="btnCamera">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8a2 2 0 0 1 2-2h2l2-2h6l2 2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="4"/></svg>
+      Take photo with guide
+    </button>
+    <button class="btn" id="btnLibrary">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+      Choose from Photos / Camera
+    </button>
+    <input type="file" id="fileInput" accept="image/*" class="hidden">
+  </div>
+
+  <div class="card">
+    <div class="label">For a photo that passes</div>
+    <ul class="tips">
+      <li>Have someone else take it with the rear camera, ~1.5 m away, phone at eye height.</li>
+      <li>Face a window or diffuse light. No shadows on face or background.</li>
+      <li>Plain background as required by the format. Neutral face, mouth closed.</li>
+      <li>Frame loosely — you crop, rotate and size it afterwards.</li>
+    </ul>
+  </div>
+  <p class="footnote">Everything runs on your phone. No photo leaves the device. Requirements change — always check the linked official source before submitting.</p>
+</section>
+
+<!-- Camera -->
+<section id="camera" class="screen hidden">
+  <video id="video" playsinline muted autoplay></video>
+  <canvas id="camOverlay"></canvas>
+  <div class="cam-top">
+    <button class="icon-btn" id="camClose" aria-label="Close">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <button class="icon-btn" id="camTimer" aria-label="Timer">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>
+    </button>
+  </div>
+  <div class="cam-hint" id="camHint">Fit your face in the oval · eyes level · look into the lens</div>
+  <div class="countdown" id="countdown"></div>
+  <div class="flash" id="flash"></div>
+  <div class="cam-bottom">
+    <button class="icon-btn" id="camLib" aria-label="Library">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+    </button>
+    <button class="shutter" id="shutter" aria-label="Take photo"></button>
+    <button class="icon-btn" id="camFlip" aria-label="Switch camera">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-3l-2-3H9L7 7H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1z"/><path d="M9 13a3 3 0 0 1 5.2-2M15 13a3 3 0 0 1-5.2 2M14 9v2h-2M10 17v-2h2"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- Editor -->
+<section id="editor" class="screen hidden">
+  <div class="topbar">
+    <button class="icon-btn" id="edBack" aria-label="Back">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <button class="spec-pill" id="edSpec"></button>
+    <button class="icon-btn on" id="edGuides" aria-label="Toggle guides">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M4 17h16M12 3v18" stroke-dasharray="2 2"/></svg>
+    </button>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div id="stage">
+    <canvas id="canvas"></canvas>
+    <div class="toast" id="toast"></div>
+    <button class="icon-btn compare-hint" id="compare" aria-label="Hold to compare">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3v18" /><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg>
+    </button>
+  </div>
+  <div class="dock">
+    <div class="panel" data-panel="align">
+      <div class="row">
+        <button class="btn small" id="btnDetect">✨ Auto-align face</button>
+        <button class="btn small" id="btnFit">Fit to markers</button>
+      </div>
+      <div class="slider"><label>Rotate</label><input type="range" id="rot" min="-200" max="200" step="1" value="0"><output id="rotOut">0.0°</output></div>
+      <div class="slider"><label>Zoom</label><input type="range" id="zoom" min="0" max="1000" step="1" value="500"><output id="zoomOut"></output></div>
+      <p class="hint">Drag to move, pinch to zoom, twist to rotate. Drag the <b>crown</b> and <b>chin</b> markers onto the top of the head and bottom of the chin, then tap “Fit to markers”.</p>
+    </div>
+    <div class="panel hidden" data-panel="light">
+      <div class="row"><button class="btn small" id="btnAuto">✨ Auto enhance</button><button class="btn small" id="btnResetAdj">Reset</button></div>
+      <div class="slider"><label>Brightness</label><input type="range" data-adj="brightness" min="-100" max="100" value="0"><output></output></div>
+      <div class="slider"><label>Contrast</label><input type="range" data-adj="contrast" min="-100" max="100" value="0"><output></output></div>
+      <div class="slider"><label>Shadows</label><input type="range" data-adj="shadows" min="-100" max="100" value="0"><output></output></div>
+      <div class="slider"><label>Warmth</label><input type="range" data-adj="warmth" min="-100" max="100" value="0"><output></output></div>
+      <div class="slider"><label>Saturation</label><input type="range" data-adj="saturation" min="-100" max="100" value="0"><output></output></div>
+    </div>
+    <div class="panel hidden" data-panel="export">
+      <div class="export-preview"><img id="expPreview" alt=""><p class="hint" id="expInfo"></p></div>
+      <div class="row">
+        <button class="btn small" id="btnSingle">Single photo</button>
+        <button class="btn small primary" id="btnSheet">Print sheet</button>
+      </div>
+      <div class="row">
+        <select id="sheetSize" class="btn small" style="flex:1;appearance:none;-webkit-appearance:none;text-align:center;text-align-last:center"></select>
+      </div>
+      <p class="hint">Print sheets at 100 % / “actual size”, no borderless crop. Single photo is for online applications.</p>
+    </div>
+    <div class="seg" id="seg">
+      <button data-tab="align" class="active">Align</button>
+      <button data-tab="light">Light</button>
+      <button data-tab="export">Export</button>
+    </div>
+  </div>
+</section>
+
+<!-- Format picker -->
+<div class="sheet-wrap" id="specSheet">
+  <div class="sheet">
+    <div class="grabber"></div>
+    <h2>Photo format</h2>
+    <div class="spec-list" id="specList"></div>
+    <div class="detail" id="specDetail"></div>
+    <div style="margin-top:18px" class="row"><button class="btn small" id="btnAddCustom">+ Add custom format</button></div>
+    <form class="form hidden" id="customForm">
+      <label>Name<input name="name" required placeholder="e.g. India passport"></label>
+      <div class="grid2">
+        <label>Width (mm)<input name="w" type="number" step="0.1" inputmode="decimal" required value="35"></label>
+        <label>Height (mm)<input name="h" type="number" step="0.1" inputmode="decimal" required value="45"></label>
+        <label>Head min (mm)<input name="headMin" type="number" step="0.1" inputmode="decimal" required value="32"></label>
+        <label>Head max (mm)<input name="headMax" type="number" step="0.1" inputmode="decimal" required value="36"></label>
+        <label>Flag / emoji<input name="flag" value="🏳️" maxlength="8"></label>
+        <label>Background<input name="bg" type="color" value="#f0f0f0"></label>
+      </div>
+      <label>Official source URL<input name="source" type="url" placeholder="https://"></label>
+      <button class="btn small primary" type="submit">Save format</button>
+    </form>
+  </div>
+</div>
+
+<div class="busy hidden" id="busy"><div class="spinner"></div></div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

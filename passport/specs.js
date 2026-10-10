@@ -1,0 +1,132 @@
+// Photo format specifications.
+// All sizes in millimetres. headMin/headMax = chin-to-crown height.
+// topRatio = share of the free vertical space (H - target head) placed above the crown.
+// eyesFromBottom = optional [min, max] mm band for the eye line (only where officially defined).
+// status: "official" = values taken from the issuing authority's published guidance,
+//         "approx"   = no authoritative head-size figure found; derived from third-party guidance. Verify before use.
+
+export const SPECS = [
+  {
+    id: 'uk-passport',
+    flag: '🇬🇧',
+    name: 'UK passport',
+    w: 35, h: 45, headMin: 29, headMax: 34, topRatio: 0.42,
+    background: 'Plain cream or light grey. No white, no patterns, no shadows.',
+    bg: '#e9e7e2',
+    notes: [
+      'Neutral expression, mouth closed, eyes open and visible.',
+      'No glasses (unless medically required), no head covering unless for religious/medical reasons.',
+      'Must not be digitally altered beyond basic crop/exposure.',
+      'Online applications: digital photo min 600 × 750 px — export “Single photo”.',
+    ],
+    source: 'https://www.gov.uk/photos-for-passports',
+    status: 'official',
+  },
+  {
+    id: 'de-passport',
+    flag: '🇩🇪',
+    name: 'Germany – Reisepass / Personalausweis',
+    w: 35, h: 45, headMin: 32, headMax: 36, topRatio: 0.40,
+    background: 'Plain, neutral, ideally light grey. Strong contrast to face/hair.',
+    bg: '#dcdcdc',
+    notes: [
+      'Biometric template (Bundesdruckerei Passbild-Schablone): chin on chin line, crown within the 32–36 mm band, nose on centre line.',
+      'Since 1 May 2025, Bürgerämter in Germany only accept digital photos from certified photographers (secure cloud) or taken on-site. Printed self-made photos are generally rejected domestically — check with your consulate abroad.',
+      'Neutral expression, mouth closed, looking straight into camera.',
+    ],
+    source: 'https://dublin.diplo.de/ie-en/-/2380534',
+    status: 'official',
+  },
+  {
+    id: 'schengen-visa',
+    flag: '🇪🇺',
+    name: 'Schengen visa / EU (ICAO)',
+    w: 35, h: 45, headMin: 32, headMax: 36, topRatio: 0.40,
+    background: 'Plain light background (light grey / off-white).',
+    bg: '#e6e6e6',
+    notes: ['ICAO 9303 biometric standard used by most EU member states.'],
+    source: 'https://www.icao.int/publications/Documents/9303_p3_cons_en.pdf',
+    status: 'official',
+  },
+  {
+    id: 'fr-passport',
+    flag: '🇫🇷',
+    name: 'France – passeport / CNI',
+    w: 35, h: 45, headMin: 32, headMax: 36, topRatio: 0.40,
+    background: 'Plain light grey or light blue. White is not accepted.',
+    bg: '#dfe3e8',
+    notes: ['ANTS norms (ISO/IEC 19794-5).'],
+    source: 'https://ants.gouv.fr/',
+    status: 'official',
+  },
+  {
+    id: 'us-passport',
+    flag: '🇺🇸',
+    name: 'US passport / visa (2 × 2 in)',
+    w: 50.8, h: 50.8, headMin: 25.4, headMax: 34.9, topRatio: 0.30,
+    eyesFromBottom: [28.6, 34.9],
+    background: 'Plain white or off-white.',
+    bg: '#ffffff',
+    notes: [
+      'Head 1 – 1⅜ in chin to top of head; eyes 1⅛ – 1⅜ in from bottom.',
+      'No glasses. Digital: square, 600–1200 px.',
+    ],
+    source: 'https://travel.state.gov/content/travel/en/passports/how-apply/photos.html',
+    status: 'official',
+  },
+  {
+    id: 'ca-passport',
+    flag: '🇨🇦',
+    name: 'Canada passport',
+    w: 50, h: 70, headMin: 31, headMax: 36, topRatio: 0.40,
+    background: 'Plain white or light-coloured.',
+    bg: '#f4f4f4',
+    notes: ['Photographer details must be stamped on the back of printed photos.'],
+    source: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/canadian-passports/photos.html',
+    status: 'official',
+  },
+  {
+    id: 'br-passport',
+    flag: '🇧🇷',
+    name: 'Brazil – passport / visa (5 × 7 cm)',
+    w: 50, h: 70, headMin: 36, headMax: 48, topRatio: 0.38,
+    background: 'Plain white.',
+    bg: '#ffffff',
+    notes: [
+      'In Brazil the Polícia Federal captures the passport photo at the appointment; this format is for consulates abroad / visas.',
+      'No official head-size figure found — range derived from third-party guidance (~55–70 % of height). Verify with the consulate.',
+    ],
+    source: 'https://www.gov.br/pf/pt-br/assuntos/passaporte',
+    status: 'approx',
+  },
+  {
+    id: 'br-3x4',
+    flag: '🇧🇷',
+    name: 'Brazil – 3 × 4 (RG / CNH / documents)',
+    w: 30, h: 40, headMin: 22, headMax: 28, topRatio: 0.38,
+    background: 'Plain white.',
+    bg: '#ffffff',
+    notes: ['Common Brazilian document format. Head range is an estimate — verify with the issuing body.'],
+    source: 'https://www.gov.br/',
+    status: 'approx',
+  },
+  {
+    id: 'ae-visa',
+    flag: '🇦🇪',
+    name: 'UAE – visa / residency (43 × 55)',
+    w: 43, h: 55, headMin: 32, headMax: 40, topRatio: 0.38,
+    background: 'Plain white / off-white.',
+    bg: '#f2f2f2',
+    notes: [
+      'ICP follows ICAO; head figures vary between sources (31–44 mm). Range here is conservative.',
+      'Digital submissions are often 300 × 369 px or larger — export “Single photo”.',
+    ],
+    source: 'https://icp.gov.ae/en/',
+    status: 'approx',
+  },
+];
+
+export const PRINT_SHEETS = [
+  { id: '6x4', name: '6 × 4 in (10 × 15 cm) print', w: 152.4, h: 101.6 },
+  { id: 'a4', name: 'A4 sheet', w: 297, h: 210 },
+];
